@@ -142,13 +142,30 @@ iframe {width:100%;border-radius:10px; border:none;}
 </head>
 <body>
 
+
+<!-- Welcome Popup -->
 <!-- Welcome Popup -->
 <div class="popup" id="welcomePopup" style="display:flex;">
   <div class="content">
     <h2>Welcome to the Futuristic Health Pod!</h2>
     <p>Please step in and enter your details to begin:</p>
-    <label>Name: <input type="text" id="userName" /></label><br><br>
-    <label>Age: <input type="number" id="userAge" min="0" /></label><br><br>
+
+    <label>Name:
+      <input type="text" id="userName" required />
+    </label><br><br>
+
+    <label>Age:
+      <input type="number" id="userAge" min="0" required />
+    </label><br><br>
+
+    <label>Pod Code (optional):
+      <input type="text" id="podCode" placeholder="Enter Pod Code if you have one" />
+    </label><br><br>
+
+    <label style="display:flex;align-items:center;gap:8px;justify-content:center;">
+      <input type="checkbox" id="guestCheck" /> Continue as Guest
+    </label><br>
+
     <button type="button" onclick="submitWelcome()">Start</button>
   </div>
 </div>
@@ -384,6 +401,21 @@ const pods=[
   {lat:20.2961,lon:85.8245,name:'Bhubaneswar, Odisha'}
 ];
 pods.forEach(p=>L.marker([p.lat,p.lon]).addTo(map).bindPopup(p.name));
+// Auto-fill saved user info from localStorage (if exists)
+window.addEventListener('load', () => {
+  const savedName = localStorage.getItem('userName');
+  const savedAge = localStorage.getItem('userAge');
+  const savedPod = localStorage.getItem('podCode');
+  const savedGuest = localStorage.getItem('isGuest') === 'true';
+
+  if (savedName && savedAge) {
+    document.getElementById('userName').value = savedName;
+    document.getElementById('userAge').value = savedAge;
+    if (savedPod) document.getElementById('podCode').value = savedPod;
+    document.getElementById('guestCheck').checked = savedGuest;
+  }
+});
+
 
 // Symptom Simulation
 function simulate(){
@@ -561,7 +593,40 @@ function speakText(){const text=document.body.innerText;const utter=new SpeechSy
 function deafMode(){alert('Deaf mode enabled: visual cues active.');}
 
 // Welcome
-function submitWelcome(){const name=document.getElementById('userName').value;const age=document.getElementById('userAge').value;if(!name||!age){alert('Enter both fields');return;}document.getElementById('welcomePopup').style.display='none'; const p=document.createElement('p'); p.innerText=`User: ${name}, Age: ${age}`; profileLog.appendChild(p);}
+function submitWelcome() {
+  const name = document.getElementById('userName').value.trim();
+  const age = document.getElementById('userAge').value.trim();
+  const podCode = document.getElementById('podCode').value.trim();
+  const guest = document.getElementById('guestCheck').checked;
+
+  if (!name || !age) {
+    alert('Please enter both name and age to continue.');
+    return;
+  }
+
+  if (!podCode && !guest) {
+    alert('Either enter a Pod Code or check "Continue as Guest".');
+    return;
+  }
+
+  // Save details in localStorage
+  localStorage.setItem('userName', name);
+  localStorage.setItem('userAge', age);
+  localStorage.setItem('podCode', podCode);
+  localStorage.setItem('isGuest', guest);
+
+  // Hide popup
+  document.getElementById('welcomePopup').style.display = 'none';
+
+  // Log info to profile
+  const p = document.createElement('p');
+  p.innerHTML = ` <strong>User:</strong> ${name}, <strong>Age:</strong> ${age}
+    ${podCode ? `<br> <strong>Pod Code:</strong> ${podCode}` : ''}
+    ${guest ? '<br><strong>Mode:</strong> Guest' : ''}`;
+  document.getElementById('profileLog').appendChild(p);
+}
+
+
 
 // Zoom Booking
 function bookZoom(){const type=document.getElementById('doctorType').value;const datetime=document.getElementById('zoomDateTime').value;const email=document.getElementById('zoomEmail').value.trim();const feedback=document.getElementById('zoomFeedback');if(!datetime||!email){feedback.innerText="Please fill all fields.";feedback.style.color="#ff4d4d";return;}feedback.innerHTML=`Zoom appointment booked with <strong>${type}</strong> on <strong>${new Date(datetime).toLocaleString()}</strong>. Link sent to <strong>${email}</strong>.`;feedback.style.color="#00ffcc";const log=document.createElement('p');log.innerHTML=`Zoom Appointment: ${type} on ${new Date(datetime).toLocaleString()} - Email: ${email}`;profileLog.appendChild(log);}
