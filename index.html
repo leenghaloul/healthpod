@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Futuristic Health Pod - Rural India</title>
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto&display=swap" rel="stylesheet">
+
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+<!-- jsPDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+body {
+  margin:0;
+  font-family:'Roboto', sans-serif;
+  background: linear-gradient(135deg,#0a1f44,#022f57);
+  color:#cce6ff;
+  overflow-x:hidden;
+}
+header {
+  background:#021b3a;
+  padding:1rem 2rem;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  box-shadow:0 0 20px #00aaffaa;
+}
+header h1 {font-family:'Orbitron',sans-serif;font-weight:700;color:#00ccff;margin:0;}
+.accessibility {
+  display:flex;gap:10px;
+}
+.accessibility select, .accessibility button {
+  padding:0.5rem; border-radius:10px; border:none; cursor:pointer; font-size:1rem;
+  background:#003355; color:#00ccff; box-shadow:0 0 10px #00ccff55; transition:0.3s;
+}
+.accessibility button:hover, .accessibility select:hover {background:#005588;}
+.profile-btn {
+  padding:0.7rem 1.2rem;
+  background:#005577;
+  color:#cce6ff;
+  border-radius:10px;
+  font-weight:600;
+  border:none;
+  cursor:pointer;
+  transition:0.3s;
+  box-shadow:0 0 12px #00ccff55;
+}
+.profile-btn:hover {
+  background:#0077aa;
+  box-shadow:0 0 20px #00ccff99;
+}
+.main-container {
+  display:flex; flex-wrap:wrap;
+}
+#mapContainer {flex:1; min-width:300px; margin:1rem;}
+#mapTitle {text-align:center; font-family:'Orbitron'; font-weight:700; color:#00ccff; margin-bottom:0.5rem;}
+#map {height:70vh; border-radius:15px; box-shadow:0 0 20px #00aaffaa;}
+.right-panel {flex:1; min-width:300px; margin:1rem; display:flex; flex-direction:column; gap:1rem;}
+.card {
+  background:rgba(2,45,81,0.85); border-radius:15px; padding:1rem; box-shadow:0 0 20px #00ccff88;
+}
+.card h2 {font-family:'Orbitron',sans-serif;font-weight:700;color:#00d8ff;margin-bottom:0.5rem;}
+select,input,button {border:none;border-radius:20px;padding:0.5rem 1rem;background:#005588cc;color:#cce6ff;font-size:1rem;}
+button {cursor:pointer; box-shadow:0 0 12px #00ccff55; transition:0.3s;}
+button:hover{background:#0077cc;}
+textarea {width:100%;border-radius:15px;padding:0.5rem;background:#003355;color:#cce6ff;}
+iframe {width:100%;border-radius:10px; border:none;}
+
+/* Medicine Animation */
+.medicine-otc {
+  display:inline-block;
+  padding:0.5rem 1rem;
+  border-radius:15px;
+  background:#00ccff;
+  color:#001b3a;
+  margin-top:0.5rem;
+  animation: bouncePulse 1s ease forwards;
+}
+.medicine-prescription {
+  display:inline-block;
+  padding:0.5rem 1rem;
+  border-radius:15px;
+  background:#ff4d4d;
+  color:#fff;
+  margin-top:0.5rem;
+  animation: bouncePulse 1s ease forwards;
+}
+@keyframes bouncePulse {
+  0% {transform: translateY(-50px) scale(0.5); opacity:0;}
+  50% {transform: translateY(0) scale(1.2); opacity:1;}
+  70% {transform: translateY(-10px) scale(1.1);}
+  100% {transform: translateY(0) scale(1);}
+}
+
+/* Popups */
+.popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(2, 45, 81, 0.45);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  flex-direction: column;
+  padding: 2rem;
+}
+.popup .content {
+  background: rgba(0, 30, 60, 0.95);
+  border: 1px solid #00ccff55;
+  border-radius: 15px;
+  box-shadow: 0 0 40px #00ccffcc;
+  padding: 2rem;
+  width: 90%;
+  max-width: 600px;
+  text-align: center;
+}
+.popup h2 { color: #00ccff; font-family: 'Orbitron', sans-serif; margin-bottom: 1rem; }
+.popup button {
+  background: #00ccff; color: #001b3a; font-weight: 700;
+  border-radius: 25px; padding: 0.6rem 2rem; border: none;
+  cursor: pointer; transition: 0.3s;
+}
+.popup button:hover { background: #0099cc; color: #fff; }
+
+/* Tabs */
+.tabs {display:flex; gap:10px; margin-bottom:1rem;}
+.tabs button{flex:1; background:#003355;color:#00ccff;font-weight:700;padding:0.5rem;border-radius:10px;}
+.tabs button.active{background:#00ccff;color:#003355;}
+.tab-content {display:none;}
+.tab-content.active{display:block;}
+</style>
+</head>
+<body>
+
+<!-- Welcome Popup -->
+<div class="popup" id="welcomePopup" style="display:flex;">
+  <div class="content">
+    <h2>Welcome to the Futuristic Health Pod!</h2>
+    <p>Please step in and enter your details to begin:</p>
+    <label>Name: <input type="text" id="userName" /></label><br><br>
+    <label>Age: <input type="number" id="userAge" min="0" /></label><br><br>
+    <button type="button" onclick="submitWelcome()">Start</button>
+  </div>
+</div>
+
+<header>
+  <h1>Futuristic Health Pod</h1>
+  <div class="accessibility">
+    <button class="profile-btn" onclick="togglePopup('profilePopup')">Profile</button>
+    <select id="languageSelector" aria-label="Select Language">
+      <option value="en" selected>English</option>
+      <option value="hi">Hindi</option>
+      <option value="bn">Bengali</option>
+      <option value="te">Telugu</option>
+      <option value="mr">Marathi</option>
+      <option value="ta">Tamil</option>
+      <option value="ur">Urdu</option>
+      <option value="gu">Gujarati</option>
+      <option value="kn">Kannada</option>
+      <option value="ml">Malayalam</option>
+    </select>
+    <button onclick="speakText()" title="Text to speech">👁️</button>
+    <button onclick="deafMode()" title="Deaf mode">👂</button>
+  </div>
+</header>
+
+<div class="main-container">
+
+  <!-- Map -->
+  <div id="mapContainer">
+    <div id="mapTitle">Health Pods in Rural India</div>
+    <div id="map"></div><br>
+    <div class="card">
+      <h2>Book a Doctor Appointment (Zoom)</h2>
+      <p>Select doctor type and schedule your appointment:</p>
+      <label>Doctor Type:
+        <select id="doctorType">
+          <option>General Physician</option>
+          <option>Pediatrician</option>
+          <option>Gynecologist</option>
+          <option>Psychologist</option>
+          <option>Cardiologist</option>
+          <option>Dentist</option>
+          <option>Psychiatrist</option>
+          <option>Physiotherapist</option>
+          <option>Neurologist</option>
+          <option>Oncologist</option>
+          <option>Gynecologist</option>
+          <option>Eye Doctor</option>
+          <option>Surgeon</option>
+        </select>
+      </label><br><br>
+      <label>Preferred Date & Time:
+        <input type="datetime-local" id="zoomDateTime">
+      </label><br><br>
+      <label>Your Email:
+        <input type="email" id="zoomEmail" placeholder="you@example.com">
+      </label><br><br>
+      <label>Notes:
+        <input type="text" id="" placeholder="Please include symptoms.">
+      </label><br><br>
+      <button onclick="bookZoom()">Book Zoom</button>
+      <p id="zoomFeedback"></p>
+    </div>
+  </div>
+
+  <!-- Right Panel -->
+  <div class="right-panel">
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="symptoms">Symptoms</button>
+      <button class="tab-btn" data-tab="chatbot">AI Chatbot</button>
+      <button class="tab-btn" data-tab="resources">Resources</button>
+      <button class="tab-btn" data-tab="volunteer">Volunteer</button>
+      <button class="tab-btn" data-tab="medicine">Medicine</button>
+    </div>
+
+    <!-- Symptoms Tab -->
+    <div class="tab-content active" id="symptoms">
+      <div class="card">
+        <h2>Symptom Checker</h2>
+        <p>Select your symptom to simulate Health Pod check:</p>
+        <select id="symptomSelect">
+          <option value="">-- Select Symptom --</option>
+          <option>Fever</option>
+          <option>Cough</option>
+          <option>Headache</option>
+          <option>Stomach Pain</option>
+          <option>Fatigue</option>
+          <option>Shortness of Breath</option>
+          <option>Chest Pain</option>
+          <option>Dizziness</option>
+          <option>Back Pain</option>
+          <option>Sore Throat</option>
+          <option>Vomiting</option>
+          <option>Diarrhea</option>
+          <option>Skin Rash</option>
+          <option>Allergies</option>
+          <option>Muscle Pain</option>
+          <option>Nausea</option>
+          <option>Cold</option>
+          <option>Joint Pain</option>
+          <option>Ear Pain</option>
+          <option>Eye Irritation</option>
+          <option>Other</option>
+        </select>
+
+        <button onclick="simulate()">Start Simulation</button>
+        <div id="symptomProcess"></div>
+        <p id="feedback"></p>
+        <h3>WebMD Symptom Checker</h3>
+        <iframe src="https://symptoms.webmd.com/#/symptoms" height="400"></iframe>
+      </div>
+    </div>
+
+    <!-- AI Chatbot Tab -->
+    <div class="tab-content" id="chatbot">
+      <div class="card">
+        <h2>AI Health Chatbot</h2>
+        <iframe src="https://www.yeschat.ai/i/gpts-2OToO6J95F-AI-DOCTOR" height="400"></iframe>
+      </div>
+    </div>
+
+    <!-- Resources Tab -->
+    <div class="tab-content" id="resources">
+      <div class="card">
+        <h2>Emergency Helplines</h2>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;">
+          <button style="flex:1;background:#ff4d4d;color:#fff;padding:10px;border-radius:10px;">Police: 100</button>
+          <button style="flex:1;background:#4dff4d;color:#001b3a;padding:10px;border-radius:10px;">Ambulance: 102</button>
+          <button style="flex:1;background:#ff944d;color:#001b3a;padding:10px;border-radius:10px;">Fire: 101</button>
+          <button style="flex:1;background:#4d4dff;color:#fff;padding:10px;border-radius:10px;">Disaster: 108</button>
+          <button style="flex:1;background:#ff4dff;color:#fff;padding:10px;border-radius:10px;">Poison Control: 1066</button>
+          <button style="flex:1;background:#00ffff;color:#001b3a;padding:10px;border-radius:10px;">Women Helpline: 1091</button>
+          <button style="flex:1;background:#ffcc00;color:#001b3a;padding:10px;border-radius:10px;">Mental Health: 9152987821</button>
+        </div>
+        <p>First Aid Video:</p>
+        <iframe src="https://www.youtube.com/watch?v=5OKFljZ2GQE" height="300"></iframe>
+        <p>Articles & Guides:</p>
+        <ul>
+          <li><a href="https://www.cdc.gov/first-aid/index.html" target="_blank" style="color:#00ccff;">CDC First Aid Guidelines</a></li>
+          <li><a href="https://www.redcross.org/get-help/first-aid" target="_blank" style="color:#00ccff;">Red Cross First Aid</a></li>
+          <li><a href="https://www.webmd.com/first-aid" target="_blank" style="color:#00ccff;">WebMD First Aid Articles</a></li>
+          <li><a href="https://www.nhp.gov.in/" target="_blank" style="color:#00ccff;">National Health Portal (India)</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Volunteer Tab -->
+    <div class="tab-content" id="volunteer">
+      <div class="card">
+        <h2>Volunteer Registration</h2>
+        <label>Name:<input type="text" id="volName" /></label><br><br>
+        <label>Role:
+          <select id="volRole">
+            <option>Doctor</option>
+            <option>Nurse</option>
+            <option>Security</option>
+          </select>
+        </label><br><br>
+        <label>Contact number:<input type="Numbers" id="volContact" /></label><br><br>
+        <label>Email:<input type="text" id="volEmail" /></label><br><br>
+        <label>Location:<input type="text" id="volLocation" /></label><br><br>
+        <button onclick="registerVolunteer()">Submit</button>
+        <p id="volFeedback"></p>
+      </div>
+    </div>
+
+    <!-- Medicine Tab -->
+    <div class="tab-content" id="medicine">
+      <div class="card">
+        <h2>Medicine Dispenser</h2>
+        <p>Select medicine type:</p>
+        <select id="medTypeSelect" onchange="showMedInputs()">
+          <option value="">-- Select Type --</option>
+          <option value="OTC">OTC</option>
+          <option value="Prescription">Prescription</option>
+        </select>
+        <div id="medInputs" style="margin-top:10px;"></div>
+        <div id="dispensedMedicine" style="margin-top:1rem; padding:0.5rem; border-radius:10px; background:#003355; color:#00ccff; min-height:50px; display:none;">
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Profile Popup -->
+<div class="popup" id="profilePopup">
+  <div class="content">
+    <h2>Profile Information</h2>
+    <div id="profileLog" style="max-height:400px; overflow-y:auto;"></div>
+    <button onclick="downloadProfile()">Download Info as PDF</button>
+    <button class="close" onclick="togglePopup('profilePopup')">Close</button>
+  </div>
+</div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+const feedback=document.getElementById('feedback');
+const process=document.getElementById('symptomProcess');
+const profileLog=document.getElementById('profileLog');
+
+// Tabs
+const tabBtns=document.querySelectorAll('.tab-btn');
+const tabContents=document.querySelectorAll('.tab-content');
+tabBtns.forEach(btn=>btn.addEventListener('click',()=>{
+  tabBtns.forEach(b=>b.classList.remove('active'));
+  tabContents.forEach(c=>c.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(btn.dataset.tab).classList.add('active');
+
+  // Hide dispensed box when switching tabs away from medicine
+  if(btn.dataset.tab!=="medicine"){
+    document.getElementById('dispensedMedicine').style.display="none";
+  }
+}));
+
+// Map
+const map=L.map('map').setView([22.3511148,78.6677428],5);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18}).addTo(map);
+const pods=[
+  {lat:25.4358,lon:81.8463,name:'Gorakhpur, UP'},
+  {lat:24.5854,lon:84.4340,name:'Gaya, Bihar'},
+  {lat:23.2599,lon:77.4126,name:'Bhopal, MP'},
+  {lat:21.1458,lon:79.0882,name:'Nagpur, MH'},
+  {lat:19.6633,lon:78.4011,name:'Nizamabad, Telangana'},
+  {lat:17.6868,lon:83.2185,name:'Visakhapatnam, AP'},
+  {lat:26.9124,lon:75.7873,name:'Jaipur, Rajasthan'},
+  {lat:21.1702,lon:72.8311,name:'Ahmedabad, Gujarat'},
+  {lat:20.2961,lon:85.8245,name:'Bhubaneswar, Odisha'}
+];
+pods.forEach(p=>L.marker([p.lat,p.lon]).addTo(map).bindPopup(p.name));
+
+// Symptom Simulation
+function simulate(){
+  const symptom=document.getElementById('symptomSelect').value;
+  process.innerHTML=""; feedback.innerHTML="";
+  if(!symptom){feedback.innerHTML='Select a symptom first!'; return;}
+  let stepText="", result="";
+  switch(symptom){
+    case "Fever":
+      stepText="Insert thermometer in ear after changing the plastic cover, then press 'Ready'.";
+      result=`<strong>Symptom:</strong> Fever<br>
+              <strong>Temperature:</strong> 39°C — High<br>
+              <strong>Advice:</strong>
+              <ul><li>Take ibuprofen</li><li>Apply a cold towel on forehead</li></ul>`;
+      break;
+    case "Cough":
+      stepText="Please breathe into the air sensor and wait 5 seconds, then press 'Ready'.";
+      result=`<strong>Symptom:</strong> Cough<br>
+              <strong>Severity:</strong> Moderate<br>
+              <strong>Advice:</strong>
+              <ul><li>Drink warm fluids</li><li>Rest</li><li>Consult doctor if persists 3+ days</li></ul>`;
+      break;
+    case "Headache":
+      stepText="Place the headband sensor around your forehead, then press 'Ready'.";
+      result=`<strong>Symptom:</strong> Headache<br>
+              <strong>Stress Level:</strong> 70%<br>
+              <strong>Cause:</strong> Mild dehydration<br>
+              <strong>Advice:</strong>
+              <ul><li>Drink water</li><li>Rest in low light</li></ul>`;
+      break;
+    case "Stomach Pain":
+      stepText="Lie down and place the abdominal scanner on your stomach, then press 'Ready'.";
+      result=`<strong>Symptom:</strong> Stomach Pain<br>
+              <strong>Possible Cause:</strong> Indigestion<br>
+              <strong>Advice:</strong>
+              <ul><li>Avoid spicy foods</li><li>Drink chamomile tea</li></ul>`;
+      break;
+    case "Fatigue":
+      stepText="Place your finger on the pulse reader, then press 'Ready'.";
+      result=`<strong>Symptom:</strong> Fatigue<br>
+              <strong>Heart Rate:</strong> 92 bpm — Slightly high<br>
+              <strong>Advice:</strong>
+              <ul><li>Rest</li><li>Hydrate</li></ul>`;
+      break;
+    case "Shortness of Breath":
+      stepText="Place your hand on the chest sensor, then press 'Ready'.";
+      result=`<strong>Symptom:</strong> Shortness of Breath<br>
+              <strong>Oxygen Level:</strong> 94%<br>
+              <strong>Advice:</strong>
+              <ul><li>Sit upright</li><li>Breathe slowly</li></ul>`;
+      break;
+    case "Chest Pain":
+      stepText="Attach the chest patch sensor, then press 'Ready'.";
+      result=`<strong>Symptom:</strong> Chest Pain<br>
+              <strong>Advice:</strong>
+              <ul><li>If severe, call emergency services immediately</li><li>Monitor condition</li></ul>`;
+      break;
+    case "Dizziness":
+      stepText="Stand still and attach the balance sensor, then press 'Ready'.";
+      result=`<strong>Symptom:</strong> Dizziness<br>
+              <strong>Advice:</strong>
+              <ul><li>Sit down immediately</li><li>Hydrate</li></ul>`;
+      break;
+    case "Back Pain":
+      stepText="Place the spine sensor on your back, then press 'Ready'.";
+      result=`<strong>Symptom:</strong> Back Pain<br>
+              <strong>Advice:</strong>
+              <ul><li>Apply heat</li><li>Rest</li><li>Stretch gently if needed</li></ul>`;
+      break;
+    case "Sore Throat":
+      stepText="Speak into the throat sensor for 5 seconds, then press 'Ready'.";
+      result=`<strong>Symptom:</strong> Sore Throat<br>
+              <strong>Advice:</strong>
+              <ul><li>Gargle warm salt water</li><li>Rest your voice</li></ul>`;
+      break;
+    case "Vomiting":
+      stepText="Place the stomach sensor on your abdomen, then press 'Ready'.";
+      result=`<strong>Symptom:</strong> Vomiting<br>
+              <strong>Advice:</strong>
+              <ul><li>Stay hydrated</li><li>Consult doctor if persists</li></ul>`;
+      break;
+    case "Diarrhea":
+      stepText="Use the stomach sensor and press 'Ready'.";
+      result=`<strong>Symptom:</strong> Diarrhea<br>
+              <strong>Advice:</strong>
+              <ul><li>Drink oral rehydration salts</li><li>Rest well</li></ul>`;
+      break;
+    case "Skin Rash":
+      stepText="Show the affected area to the camera sensor, then press 'Ready'.";
+      result=`<strong>Symptom:</strong> Skin Rash<br>
+              <strong>Advice:</strong>
+              <ul><li>Avoid allergens</li><li>Apply mild cream</li><li>Consult doctor if worsens</li></ul>`;
+      break;
+    case "Allergies":
+      stepText="Input your common allergens, then press 'Ready'.";
+      result=`<strong>Symptom:</strong> Allergies<br>
+              <strong>Advice:</strong>
+              <ul><li>Take antihistamines</li><li>Monitor symptoms</li></ul>`;
+      break;
+    case "Muscle Pain":
+      stepText="Place the muscle sensor on affected area, then press 'Ready'.";
+      result=`<strong>Symptom:</strong> Muscle Pain<br>
+              <strong>Advice:</strong>
+              <ul><li>Rest</li><li>Apply gentle massage or heat</li></ul>`;
+      break;
+    case "Nausea":
+      stepText="Place your hand on the stomach sensor, then press 'Ready'.";
+      result=`<strong>Symptom:</strong> Nausea<br>
+              <strong>Advice:</strong>
+              <ul><li>Drink water slowly</li><li>Rest</li></ul>`;
+      break;
+    case "Cold":
+      stepText="Place finger on pulse sensor, then press 'Ready'.";
+      result=`<strong>Symptom:</strong> Cold<br>
+              <strong>Advice:</strong>
+              <ul><li>Rest</li><li>Hydrate</li><li>Monitor for fever</li></ul>`;
+      break;
+    case "Joint Pain":
+      stepText="Place the joint sensor on affected area, then press 'Ready'.";
+      result=`<strong>Symptom:</strong> Joint Pain<br>
+              <strong>Advice:</strong>
+              <ul><li>Rest</li><li>Avoid strain</li></ul>`;
+      break;
+    case "Ear Pain":
+      stepText="Place ear sensor, then press 'Ready'.";
+      result=`<strong>Symptom:</strong> Ear Pain<br>
+              <strong>Advice:</strong>
+              <ul><li>Possible ear infection</li><li>Consult doctor if persists</li></ul>`;
+      break;
+    case "Eye Irritation":
+      stepText="Blink into the eye sensor, then press 'Ready'.";
+      result=`<strong>Symptom:</strong> Eye Irritation<br>
+              <strong>Advice:</strong>
+              <ul><li>Use lubricating drops</li><li>Rest eyes</li></ul>`;
+      break;
+    default:
+      stepText="Follow the instructions of the sensor, then press 'Ready'.";
+      result=`<strong>Symptom:</strong> ${symptom}<br><strong>Advice:</strong> Consult a doctor if unsure.`;
+  }
+
+  process.innerHTML=`<p>${stepText}</p>`;
+  const btn=document.createElement('button');
+  btn.innerText='Ready';
+  btn.onclick=()=>{feedback.innerHTML=result; const log=document.createElement('p'); log.innerHTML=`${new Date().toLocaleString()} - ${symptom}: ${result.replace(/<[^>]*>/g,'')}`; profileLog.appendChild(log);};
+  process.appendChild(btn);
+}
+
+// Profile
+function downloadProfile() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({
+    orientation: "portrait",
+    unit: "pt",
+    format: "a4"
+  });
+
+  const profileText = document.getElementById("profileLog").innerText;
+  const margin = 40;
+  const pageWidth = doc.internal.pageSize.getWidth() - margin * 2;
+
+  // Split text automatically to fit inside the page
+  const wrappedText = doc.splitTextToSize(profileText, pageWidth);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(12);
+  doc.text(wrappedText, margin, 60);
+
+  doc.save("HealthPod_Profile.pdf");
+}
+
+function togglePopup(id){const p=document.getElementById(id);p.style.display=p.style.display==='flex'?'none':'flex';}
+
+// Accessibility
+function speakText(){const text=document.body.innerText;const utter=new SpeechSynthesisUtterance(text);speechSynthesis.speak(utter);}
+function deafMode(){alert('Deaf mode enabled: visual cues active.');}
+
+// Welcome
+function submitWelcome(){const name=document.getElementById('userName').value;const age=document.getElementById('userAge').value;if(!name||!age){alert('Enter both fields');return;}document.getElementById('welcomePopup').style.display='none'; const p=document.createElement('p'); p.innerText=`User: ${name}, Age: ${age}`; profileLog.appendChild(p);}
+
+// Zoom Booking
+function bookZoom(){const type=document.getElementById('doctorType').value;const datetime=document.getElementById('zoomDateTime').value;const email=document.getElementById('zoomEmail').value.trim();const feedback=document.getElementById('zoomFeedback');if(!datetime||!email){feedback.innerText="Please fill all fields.";feedback.style.color="#ff4d4d";return;}feedback.innerHTML=`Zoom appointment booked with <strong>${type}</strong> on <strong>${new Date(datetime).toLocaleString()}</strong>. Link sent to <strong>${email}</strong>.`;feedback.style.color="#00ffcc";const log=document.createElement('p');log.innerHTML=`Zoom Appointment: ${type} on ${new Date(datetime).toLocaleString()} - Email: ${email}`;profileLog.appendChild(log);}
+
+// Volunteer Registration
+function registerVolunteer(){const name=document.getElementById('volName').value;const role=document.getElementById('volRole').value;const contact=document.getElementById('volContact').value;const email=document.getElementById('volEmail').value;const location=document.getElementById('volLocation').value;if(!name||!contact||!email||!location){document.getElementById('volFeedback').innerText='Fill all fields';return;}document.getElementById('volFeedback').innerText=`Thank you ${name} for volunteering as ${role}!`;const log=document.createElement('p');log.innerHTML=`Volunteer: ${name}, Role: ${role}, Contact: ${contact}, Email: ${email}, Location: ${location}`;profileLog.appendChild(log);}
+
+// Medicine Tab Logic
+function showMedInputs(){
+  const type=document.getElementById('medTypeSelect').value;
+  const container=document.getElementById('medInputs');
+  const display=document.getElementById('dispensedMedicine');
+  display.style.display="none"; // Hide by default
+  display.innerHTML="";
+  container.innerHTML="";
+  if(type==="OTC"){
+    container.innerHTML=`<label>Medicine Name:
+      <select id="otcName">
+        <option>Paracetamol</option>
+        <option>Ibuprofen</option>
+        <option>Aspirin</option>
+        <option>Antacid</option>
+        <option>Antihistamine</option>
+        <option>Cold & Flu Relief</option>
+        <option>Cough Syrup</option>
+        <option>Multivitamin</option>
+        <option>Topical Ointment</option>
+        <option>Oral Rehydration Salts</option>
+      </select>
+    </label><br><br>
+    <label>Number of Pills:<input id="otcAmt" type="number" min="1" value="1"></label><br><br>
+    <button onclick="dispenseOTC()">Dispense</button>`;
+  }else if(type==="Prescription"){
+    container.innerHTML=`<label>Prescription Code:<input id="presCode" placeholder="Enter Code"></label><br><br>
+                         <button onclick="dispensePrescription()">Dispense</button>`;
+  }
+}
+
+function dispenseOTC(){
+  const name=document.getElementById('otcName').value||"OTC Medicine";
+  const amt=parseInt(document.getElementById('otcAmt').value)||1;
+  const display=document.getElementById('dispensedMedicine');
+  display.innerHTML=`<span class="medicine-otc">${amt} x ${name} Pills Dispensed!</span>`;
+  display.style.display="block";
+  const log=document.createElement('p'); log.innerHTML=`OTC: ${name}, Amount: ${amt}`; profileLog.appendChild(log);
+}
+
+function dispensePrescription(){
+  const code=document.getElementById('presCode').value;
+  const display=document.getElementById('dispensedMedicine');
+  display.innerHTML="";
+  if(code==="1234"){
+    display.innerHTML=`<span class="medicine-prescription">4 x Hydrocodone Pills Dispensed!</span>`;
+    display.style.display="block";
+    const log=document.createElement('p'); log.innerHTML=`Prescription: Hydrocodone, 4 Pills, Code: ${code}`; profileLog.appendChild(log);
+  }else{
+    display.innerHTML="<span style='color:#ff4d4d;font-weight:bold;'>Invalid Prescription Code!</span>";
+    display.style.display="block";
+  }
+}
+</script>
+
+</body>
+</html>
