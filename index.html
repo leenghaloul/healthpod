@@ -14,7 +14,68 @@
 <!-- jsPDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-<style>
+<style>/* Sliding Article Cards */
+.article-slider {
+  display: flex;
+  overflow-x: auto;
+  gap: 1rem;
+  scroll-behavior: smooth;
+  padding: 0.5rem;
+  margin-top: 1rem;
+}
+.article-slider::-webkit-scrollbar {
+  height: 8px;
+}
+.article-slider::-webkit-scrollbar-thumb {
+  background: #00ccff55;
+  border-radius: 10px;
+}
+.article-card {
+  min-width: 150px;      /* smaller width */
+  max-width: 180px;
+  flex: 0 0 auto;
+  background: rgba(0, 25, 50, 0.9);
+  border: 1px solid #00ccff33;
+  border-radius: 12px;
+  box-shadow: 0 0 10px #00ccff44;
+  padding: 0.7rem;
+  text-align: center;
+  transition: 0.3s;
+}
+.article-card:hover {
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 0 20px #00ccff99;
+}
+.article-card h3 {
+  color: #00eaff;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.9rem;
+  margin-bottom: 0.3rem;
+}
+.article-card p {
+  font-size: 0.8rem;
+  color: #bcdfff;
+  min-height: 35px;
+  margin-bottom: 0.3rem;
+}
+.article-card a {
+  display: inline-block;
+  padding: 0.3rem 0.7rem;
+  background: #00ccff;
+  color: #001b3a;
+  font-weight: 600;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 0.8rem;
+  box-shadow: 0 0 8px #00ccff55;
+  transition: 0.3s;
+}
+.article-card a:hover {
+  background: #0088cc;
+  color: #fff;
+  box-shadow: 0 0 16px #00ccff99;
+}
+
 body {
   margin:0;
   font-family:'Roboto', sans-serif;
@@ -294,23 +355,84 @@ iframe {width:100%;border-radius:10px; border:none;}
       <div class="card">
         <h2>Emergency Helplines</h2>
         <div style="display:flex;flex-wrap:wrap;gap:10px;">
-          <button style="flex:1;background:#ff4d4d;color:#fff;padding:10px;border-radius:10px;">Police: 100</button>
-          <button style="flex:1;background:#4dff4d;color:#001b3a;padding:10px;border-radius:10px;">Ambulance: 102</button>
-          <button style="flex:1;background:#ff944d;color:#001b3a;padding:10px;border-radius:10px;">Fire: 101</button>
-          <button style="flex:1;background:#4d4dff;color:#fff;padding:10px;border-radius:10px;">Disaster: 108</button>
-          <button style="flex:1;background:#ff4dff;color:#fff;padding:10px;border-radius:10px;">Poison Control: 1066</button>
-          <button style="flex:1;background:#00ffff;color:#001b3a;padding:10px;border-radius:10px;">Women Helpline: 1091</button>
-          <button style="flex:1;background:#ffcc00;color:#001b3a;padding:10px;border-radius:10px;">Mental Health: 9152987821</button>
-        </div>
-        <p>First Aid Video:</p>
-        <iframe src="https://www.youtube.com/watch?v=5OKFljZ2GQE" height="300"></iframe>
-        <p>Articles & Guides:</p>
-        <ul>
-          <li><a href="https://www.cdc.gov/first-aid/index.html" target="_blank" style="color:#00ccff;">CDC First Aid Guidelines</a></li>
-          <li><a href="https://www.redcross.org/get-help/first-aid" target="_blank" style="color:#00ccff;">Red Cross First Aid</a></li>
-          <li><a href="https://www.webmd.com/first-aid" target="_blank" style="color:#00ccff;">WebMD First Aid Articles</a></li>
-          <li><a href="https://www.nhp.gov.in/" target="_blank" style="color:#00ccff;">National Health Portal (India)</a></li>
-        </ul>
+          <button style="flex:1;background:#ff4d4d;color:#fff;padding:10px;border-radius:10px;"><strong>Police:</strong> 100</button>
+          <button style="flex:1;background:#4dff4d;color:#001b3a;padding:10px;border-radius:10px;"><strong>Ambulance:</strong> 102</button>
+          <button style="flex:1;background:#ff944d;color:#001b3a;padding:10px;border-radius:10px;"><strong>Fire:</strong> 101</button>
+          <button style="flex:1;background:#4d4dff;color:#fff;padding:10px;border-radius:10px;"><strong>Disaster:</strong> 108</button>
+          <button style="flex:1;background:#ff4dff;color:#fff;padding:10px;border-radius:10px;"><strong>Poison Control:</strong> 1066</button>
+          <button style="flex:1;background:#00ffff;color:#001b3a;padding:10px;border-radius:10px;"><strong>Women Helpline:</strong> 1091</button>
+          </div>
+        <p>FirstAid Video:</p>
+        <iframe height= 300px src="https://www.youtube.com/embed/mNk0mZRJBV0?si=Ppx7y_-vS4m1BeLj" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" 
+  title="YouTube video player">
+  
+</iframe>
+
+
+        <h2 style="margin-top:1rem;">Articles & Guides</h2>
+<div class="article-slider">
+  <div class="article-card">
+    <h3>🩹 First Aid Basics</h3>
+    <p>Learn emergency care skills.</p>
+    <a href="https://www.cdc.gov/first-aid/index.html" target="_blank">Read</a>
+  </div>
+  <div class="article-card">
+    <h3>🚑 Red Cross Training</h3>
+    <p>Be prepared to save lives.</p>
+    <a href="https://www.redcross.org/get-help/first-aid" target="_blank">Read</a>
+  </div>
+  <div class="article-card">
+    <h3>💊 WebMD Tips</h3>
+    <p>Quick home remedies guide.</p>
+    <a href="https://www.webmd.com/first-aid" target="_blank">Read</a>
+  </div>
+  <div class="article-card">
+    <h3>🏥 National Health Portal</h3>
+    <p>Official health info (India).</p>
+    <a href="https://www.nhp.gov.in/" target="_blank">Read</a>
+  </div>
+  <div class="article-card">
+    <h3>🧠 Mental Health Matters</h3>
+    <p>Reduce stress, stay balanced.</p>
+    <a href="https://www.who.int/health-topics/mental-health" target="_blank">Read</a>
+  </div>
+  <div class="article-card">
+    <h3>🌡️ Preventive Healthcare</h3>
+    <p>Simple steps to stay healthy.</p>
+    <a href="https://www.nhs.uk/live-well/" target="_blank">Read</a>
+  </div>
+  <div class="article-card">
+    <h3>🧬 Nutrition Science</h3>
+    <p>Understand food and wellness.</p>
+    <a href="https://www.healthline.com/nutrition" target="_blank">Read</a>
+  </div>
+  <div class="article-card">
+    <h3>🚰 Clean Water Guide</h3>
+    <p>Water safety & hygiene tips.</p>
+    <a href="https://www.unicef.org/wash/" target="_blank">Read</a>
+  </div>
+  <div class="article-card">
+    <h3>🧤 Sanitation Tips</h3>
+    <p>Keep your environment germ-free.</p>
+    <a href="https://www.who.int/water_sanitation_health" target="_blank">Read</a>
+  </div>
+  <div class="article-card">
+    <h3>🦠 Infection Prevention</h3>
+    <p>Protect yourself & your family.</p>
+    <a href="https://www.cdc.gov/infectioncontrol/" target="_blank">Read</a>
+  </div>
+  <div class="article-card">
+    <h3>🌾 Rural Health Initiatives</h3>
+    <p>Empowering rural communities.</p>
+    <a href="https://ruralhealth.und.edu/" target="_blank">Read</a>
+  </div>
+  <div class="article-card">
+    <h3>💉 Vaccination Awareness</h3>
+    <p>Why vaccines matter for all.</p>
+    <a href="https://www.who.int/health-topics/vaccines" target="_blank">Read</a>
+  </div>
+</div>
+
       </div>
     </div>
 
@@ -324,6 +446,11 @@ iframe {width:100%;border-radius:10px; border:none;}
             <option>Doctor</option>
             <option>Nurse</option>
             <option>Security</option>
+            <option>Regular volunteer</option>
+            <option>Maintenance</option>
+            <option>Manager</option>
+            <option>Website developer</option>
+
           </select>
         </label><br><br>
         <label>Contact number:<input type="Numbers" id="volContact" /></label><br><br>
@@ -341,7 +468,7 @@ iframe {width:100%;border-radius:10px; border:none;}
         <p>Select medicine type:</p>
         <select id="medTypeSelect" onchange="showMedInputs()">
           <option value="">-- Select Type --</option>
-          <option value="OTC">OTC</option>
+          <option value="OTC">Over the counter</option>
           <option value="Prescription">Prescription</option>
         </select>
         <div id="medInputs" style="margin-top:10px;"></div>
@@ -632,7 +759,7 @@ function submitWelcome() {
 function bookZoom(){const type=document.getElementById('doctorType').value;const datetime=document.getElementById('zoomDateTime').value;const email=document.getElementById('zoomEmail').value.trim();const feedback=document.getElementById('zoomFeedback');if(!datetime||!email){feedback.innerText="Please fill all fields.";feedback.style.color="#ff4d4d";return;}feedback.innerHTML=`Zoom appointment booked with <strong>${type}</strong> on <strong>${new Date(datetime).toLocaleString()}</strong>. Link sent to <strong>${email}</strong>.`;feedback.style.color="#00ffcc";const log=document.createElement('p');log.innerHTML=`Zoom Appointment: ${type} on ${new Date(datetime).toLocaleString()} - Email: ${email}`;profileLog.appendChild(log);}
 
 // Volunteer Registration
-function registerVolunteer(){const name=document.getElementById('volName').value;const role=document.getElementById('volRole').value;const contact=document.getElementById('volContact').value;const email=document.getElementById('volEmail').value;const location=document.getElementById('volLocation').value;if(!name||!contact||!email||!location){document.getElementById('volFeedback').innerText='Fill all fields';return;}document.getElementById('volFeedback').innerText=`Thank you ${name} for volunteering as ${role}!`;const log=document.createElement('p');log.innerHTML=`Volunteer: ${name}, Role: ${role}, Contact: ${contact}, Email: ${email}, Location: ${location}`;profileLog.appendChild(log);}
+function registerVolunteer(){const name=document.getElementById('volName').value;const role=document.getElementById('volRole').value;const contact=document.getElementById('volContact').value;const email=document.getElementById('volEmail').value;const location=document.getElementById('volLocation').value;if(!name||!contact||!email||!location){document.getElementById('volFeedback').innerText='Fill all fields';return;}document.getElementById('volFeedback').innerText=`Thank you ${name} for volunteering as ${role}, you will recieve a confirmation on your registered email!`;const log=document.createElement('p');log.innerHTML=`Volunteer: ${name}, Role: ${role}, Contact: ${contact}, Email: ${email}, Location: ${location}`;profileLog.appendChild(log);}
 
 // Medicine Tab Logic
 function showMedInputs(){
@@ -655,6 +782,21 @@ function showMedInputs(){
         <option>Multivitamin</option>
         <option>Topical Ointment</option>
         <option>Oral Rehydration Salts</option>
+        <option>Loratadine</option>
+<option>Diphenhydramine</option>
+<option>Hydrocortisone Cream</option>
+<option>Loperamide</option>
+<option>Bismuth Subsalicylate</option>
+<option>Simethicone</option>
+<option>Guaifenesin</option>
+<option>Decongestant Nasal Spray</option>
+<option>Acetaminophen with Caffeine</option>
+<option>Calamine Lotion</option>
+<option>Hydrogen Peroxide Solution</option>
+<option>Antifungal Cream</option>
+<option>Saline Nasal Spray</option>
+<option>Melatonin</option>
+<option>Nicotine Replacement Patch</option>
       </select>
     </label><br><br>
     <label>Number of Pills:<input id="otcAmt" type="number" min="1" value="1"></label><br><br>
@@ -678,16 +820,54 @@ function dispensePrescription(){
   const code=document.getElementById('presCode').value;
   const display=document.getElementById('dispensedMedicine');
   display.innerHTML="";
-  if(code==="1234"){
-    display.innerHTML=`<span class="medicine-prescription">4 x Hydrocodone Pills Dispensed!</span>`;
-    display.style.display="block";
-    const log=document.createElement('p'); log.innerHTML=`Prescription: Hydrocodone, 4 Pills, Code: ${code}`; profileLog.appendChild(log);
-  }else{
-    display.innerHTML="<span style='color:#ff4d4d;font-weight:bold;'>Invalid Prescription Code!</span>";
-    display.style.display="block";
-  }
+    if (code === "1234") {
+  display.innerHTML = `<span class="medicine-prescription">4 x Hydrocodone Pills Dispensed!</span>`;
+  display.style.display = "block";
+  const log = document.createElement('p');
+  log.innerHTML = `Prescription: Hydrocodone, 4 Pills, Code: ${code}`;
+  profileLog.appendChild(log);
+
+} else if (code === "2345") {
+  display.innerHTML = `<span class="medicine-prescription">2 x Amoxicillin Capsules Dispensed!</span>`;
+  display.style.display = "block";
+  const log = document.createElement('p');
+  log.innerHTML = `Prescription: Amoxicillin, 2 Capsules, Code: ${code}`;
+  profileLog.appendChild(log);
+
+} else if (code === "3456") {
+  display.innerHTML = `<span class="medicine-prescription">1 x Insulin Pen Dispensed!</span>`;
+  display.style.display = "block";
+  const log = document.createElement('p');
+  log.innerHTML = `Prescription: Insulin, 1 Pen, Code: ${code}`;
+  profileLog.appendChild(log);
+
+} else if (code === "4567") {
+  display.innerHTML = `<span class="medicine-prescription">10 x Lisinopril Tablets Dispensed!</span>`;
+  display.style.display = "block";
+  const log = document.createElement('p');
+  log.innerHTML = `Prescription: Lisinopril, 10 Tablets, Code: ${code}`;
+  profileLog.appendChild(log);
+
+} else if (code === "5678") {
+  display.innerHTML = `<span class="medicine-prescription">5 x Metformin Tablets Dispensed!</span>`;
+  display.style.display = "block";
+  const log = document.createElement('p');
+  log.innerHTML = `Prescription: Metformin, 5 Tablets, Code: ${code}`;
+  profileLog.appendChild(log);
+
+} else if (code === "6789") {
+  display.innerHTML = `<span class="medicine-prescription">3 x Albuterol Inhalers Dispensed!</span>`;
+  display.style.display = "block";
+  const log = document.createElement('p');
+  log.innerHTML = `Prescription: Albuterol Inhaler, 3 Units, Code: ${code}`;
+  profileLog.appendChild(log);
+
+} else {
+  display.innerHTML = `<span style='color:#ff4d4d;font-weight:bold;'>Invalid Prescription Code!</span>`;
+  display.style.display = "block";
+}
 }
 </script>
 
 </body>
-</html>
+</html>  
